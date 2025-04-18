@@ -1,4 +1,4 @@
-export async function sendToJD(url: string) {
+export async function sendToJD(url: string, title: string) {
   fetch("http://localhost:8297/addLink", {
     method: "POST",
     headers: {
@@ -6,7 +6,7 @@ export async function sendToJD(url: string) {
     },
     body: JSON.stringify({
       url,
-      packageName: "M3u8 Finder",
+      packageName: title,
       forcePackageName: true,
     }),
   });
