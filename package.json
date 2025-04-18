@@ -1,12 +1,12 @@
 {
-  "name": "solid-chrome-extension-template",
-  "displayName": "Solid Chrome Extension Template",
-  "version": "0.202501.1",
-  "description": "Chrome Extension boilerplate with SolidJS + Vite v6 + ManifestV3",
+  "name": "chrome-m3u8-finder",
+  "displayName": "Chrome M3U8 Finder",
+  "version": "0.20250418.1",
+  "description": "A chrome extension which finds m3u8 playlist links on streaming pages",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/bjesuiter/solid-chrome-extension-template.git"
+    "url": "https://github.com/bjesuiter/chrome-m3u8-finder.git"
   },
   "scripts": {
     "dev": "vite build -w --mode development",
