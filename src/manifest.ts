@@ -38,7 +38,7 @@ const manifest = defineManifest(async () => ({
       matches: ["*://*/*"],
     },
   ],
-  permissions: ["webRequest", "clipboardWrite"],
+  permissions: ["webRequest", "clipboardWrite", "storage"],
   host_permissions: ["*://*/*"],
 }));
 
