@@ -1,3 +1,5 @@
+import { sendToJD } from "./sendToJD";
+
 console.log("[background] Service worker loaded");
 let m3u8Links: string[] = [];
 
@@ -15,6 +17,14 @@ chrome.webRequest.onBeforeRequest.addListener(
       console.log(`Found a master.m3u8 link: ${url}`);
       m3u8Links.push(url);
       chrome.storage.local.set({ m3u8Links });
+
+      sendToJD(url)
+        .then(() => {
+          console.log(`Sent ${url} to JDownloader`);
+        })
+        .catch((error) => {
+          console.error(`Error sending ${url} to JDownloader`, error);
+        });
 
       chrome.runtime.sendMessage({
         action: "updatedM3u8Links",
