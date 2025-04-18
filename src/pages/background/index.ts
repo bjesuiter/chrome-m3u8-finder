@@ -17,22 +17,6 @@ chrome.webRequest.onBeforeRequest.addListener(
         action: "updatedM3u8Links",
         m3u8Links,
       });
-
-      //   if (!navigator.clipboard) {
-      //     console.error("Clipboard object not available");
-      //     return;
-      //   }
-
-      //   navigator.clipboard
-      //     .writeText(url)
-      //     .then(() => {
-      //       console.log("Text copied to clipboard");
-      //       // Optionally provide user feedback (e.g., an alert)
-      //     })
-      //     .catch((err) => {
-      //       console.error("Failed to copy text: ", err);
-      //       // Handle the error appropriately (e.g., display an error message)
-      //     });
     }
   },
   { urls: ["*://*.s.to/*", "*://*.orbitcache.com/*"] },
@@ -42,6 +26,13 @@ chrome.webRequest.onBeforeRequest.addListener(
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "readM3u8Links") {
     console.log("[background] Received action 'readM3u8Links'", message);
+    sendResponse({ m3u8Links });
+    return false; // Indicate that you will be sending a response synchronously
+  }
+
+  if (message.action === "clearM3u8Links") {
+    console.log("[background] Received action 'clearM3u8Links'", message);
+    m3u8Links = [];
     sendResponse({ m3u8Links });
     return false; // Indicate that you will be sending a response synchronously
   }

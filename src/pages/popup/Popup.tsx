@@ -30,15 +30,32 @@ export function PopupPage() {
     }
   }
 
+  async function clearLinks() {
+    const result = await chrome.runtime.sendMessage({
+      action: "clearM3u8Links",
+    });
+    console.debug("[popup] clearM3u8Links result", result);
+    mutateM3u8Links(result?.m3u8Links);
+  }
+
   return (
     <div class="flex h-full w-[400px] flex-col gap-2 bg-[#282c34] p-4 text-white">
       <h1 class="text-xl font-bold">M3u8 Finder</h1>
-      <button
-        class="rounded border-2 border-solid border-slate-400 bg-slate-500 p-2"
-        onClick={copyLinks}
-      >
-        Copy
-      </button>
+      {/* Actions */}
+      <div class="flex gap-2">
+        <button
+          class="rounded border-2 border-solid border-slate-400 bg-slate-500 p-2"
+          onClick={copyLinks}
+        >
+          Copy
+        </button>
+        <button
+          class="rounded border-2 border-solid border-slate-400 bg-slate-500 p-2"
+          onClick={clearLinks}
+        >
+          Clear
+        </button>
+      </div>
       <pre class="m-x-2 w-full overflow-x-auto border-2 border-solid border-white p-2">
         {m3u8Links()
           ?.map((m3u8Link) => m3u8Link)
