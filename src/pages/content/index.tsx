@@ -24,10 +24,17 @@ const episode = url.at(-1);
 const seasonNr = season.split("-").at(1);
 const episodeNr = episode.split("-").at(1);
 
-console.debug(`[M3u8 Finder]: found infos`, {
+const contentMetadata = {
   germanTitle,
   englishTitle,
   selectedLanguage,
   seasonNr,
   episodeNr,
+};
+
+console.debug(`[M3u8 Finder]: found infos`, contentMetadata);
+
+chrome.runtime.sendMessage({
+  action: "contentMetadata",
+  contentMetadata,
 });

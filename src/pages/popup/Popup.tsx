@@ -1,7 +1,9 @@
+import { M3u8Link } from "@src/pages/background/m3u8Link.type";
 import "@src/styles/tailwind.css";
 import { createResource } from "solid-js";
+
 export function PopupPage() {
-  const [m3u8Links, { mutate: mutateM3u8Links }] = createResource<string[]>(
+  const [m3u8Links, { mutate: mutateM3u8Links }] = createResource<M3u8Link[]>(
     async () => {
       const result = await chrome.runtime.sendMessage({
         action: "readM3u8Links",
@@ -19,7 +21,7 @@ export function PopupPage() {
 
   async function copyLinks() {
     const links = m3u8Links()
-      ?.map((m3u8Link) => m3u8Link)
+      ?.map((m3u8Link) => m3u8Link.url)
       .join("\n");
     if (!navigator?.clipboard) {
       console.error("[popup] navigator.clipboard not available");
@@ -58,7 +60,7 @@ export function PopupPage() {
       </div>
       <pre class="m-x-2 w-full overflow-x-auto border-2 border-solid border-white p-2">
         {m3u8Links()
-          ?.map((m3u8Link) => m3u8Link)
+          ?.map((m3u8Link) => m3u8Link.url)
           .join("\n")}
       </pre>
     </div>

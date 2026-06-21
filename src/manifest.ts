@@ -25,12 +25,12 @@ const manifest = defineManifest(async () => ({
   // chrome_url_overrides: {
   //   newtab: "src/pages/newtab/index.html",
   // },
-  // content_scripts: [
-  //   {
-  //     matches: ["http://*/*", "https://*/*", "<all_urls>"],
-  //     js: ["src/pages/content/index.tsx"],
-  //   },
-  // ],
+  content_scripts: [
+    {
+      matches: ["http://*/*", "https://*/*", "<all_urls>"],
+      js: ["src/pages/content/index.tsx"],
+    },
+  ],
   // devtools_page: "src/pages/devtools/index.html",
   web_accessible_resources: [
     {

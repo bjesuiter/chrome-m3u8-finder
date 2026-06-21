@@ -1,7 +1,9 @@
-import { sendToJD } from "./sendToJD";
+import { M3u8Link, M3u8LinkIncomplete } from "./m3u8Link.type";
 
 console.log("[background] Service worker loaded");
-let m3u8Links: string[] = [];
+
+let currentM3u8Link: M3u8LinkIncomplete | undefined;
+let m3u8Links: M3u8Link[] = [];
 
 chrome.runtime.onInstalled.addListener(() => {
   console.log("[background] extension installed");
@@ -10,26 +12,58 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
+function checkAndFinalizeCurrentM3u8Link() {
+  if (!currentM3u8Link) {
+    return; // no current m3u8 link
+  }
+  if (
+    !currentM3u8Link.title ||
+    !currentM3u8Link.url ||
+    !currentM3u8Link.metadata
+  ) {
+    return; // m3u8 link not complete
+  }
+
+  // m3u8 link is complete
+  console.debug("[background] adding m3u8 link to storage", currentM3u8Link);
+  m3u8Links.push({
+    url: currentM3u8Link.url,
+    title: currentM3u8Link.title,
+    metadata: currentM3u8Link.metadata,
+  });
+  currentM3u8Link = undefined;
+  chrome.storage.local.set({ m3u8Links });
+
+  chrome.runtime.sendMessage({
+    action: "updatedM3u8Links",
+    m3u8Links,
+  });
+
+  // temporary disabled
+  // sendToJD(url)
+  //   .then(() => {
+  //     console.log(`Sent ${url} to JDownloader`);
+  //   })
+  //   .catch((error) => {
+  //     console.error(`Error sending ${url} to JDownloader`, error);
+  //   });
+}
+
 chrome.webRequest.onBeforeRequest.addListener(
   (details) => {
     const url = details.url;
     if (url.includes("master.m3u8")) {
       console.log(`Found a master.m3u8 link: ${url}`);
-      m3u8Links.push(url);
-      chrome.storage.local.set({ m3u8Links });
 
-      sendToJD(url)
-        .then(() => {
-          console.log(`Sent ${url} to JDownloader`);
-        })
-        .catch((error) => {
-          console.error(`Error sending ${url} to JDownloader`, error);
-        });
+      // add url to current m3u8 link
+      if (currentM3u8Link) {
+        currentM3u8Link.url = url;
+      } else {
+        currentM3u8Link = { url };
+      }
 
-      chrome.runtime.sendMessage({
-        action: "updatedM3u8Links",
-        m3u8Links,
-      });
+      // finalize current m3u8 link
+      checkAndFinalizeCurrentM3u8Link();
     }
   },
   { urls: ["*://*.s.to/*", "*://*.orbitcache.com/*"] },
@@ -51,5 +85,28 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     chrome.storage.local.set({ m3u8Links });
     sendResponse({ m3u8Links });
     return false; // Indicate that you will be sending a response synchronously
+  }
+
+  if (message.action === "contentMetadata") {
+    console.log("[background] Received action 'metadata'", message);
+    const { germanTitle, englishTitle, selectedLanguage, seasonNr, episodeNr } =
+      message.contentMetadata;
+
+    const mainTitle =
+      selectedLanguage === "Deutsch" ? germanTitle : englishTitle;
+
+    const title = `${mainTitle} S${seasonNr}F${episodeNr} ${selectedLanguage === "Deutsch" ? "DE" : "EN"}`;
+
+    if (currentM3u8Link) {
+      currentM3u8Link.title = title;
+      currentM3u8Link.metadata = message.contentMetadata;
+    } else {
+      currentM3u8Link = {
+        title,
+        metadata: message.contentMetadata,
+      };
+    }
+
+    checkAndFinalizeCurrentM3u8Link();
   }
 });
